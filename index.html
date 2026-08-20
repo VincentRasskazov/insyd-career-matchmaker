@@ -16,6 +16,8 @@
             --text-sub: #9ca3af;
             --border: #222222;
             --accent-glow: rgba(168, 199, 250, 0.15);
+            --success: #4ade80;
+            --error: #ff6b6b;
         }
 
         * { box-sizing: border-box; }
@@ -64,6 +66,20 @@
         h2 { font-size: 1.35rem; }
         p { margin: 0; color: var(--text-sub); line-height: 1.5; font-size: 0.95rem; }
 
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
         .btn-group { display: flex; flex-direction: column; gap: 10px; }
 
         button {
@@ -101,6 +117,13 @@
             color: #000;
         }
 
+        .btn-primary:disabled {
+            background: #555;
+            color: #999;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
         input[type="text"] {
             background: #0a0a0c;
             border: 1px solid var(--border);
@@ -127,7 +150,14 @@
             transition: 0.2s;
         }
         .checkbox-label:hover { border-color: var(--primary); }
-        .checkbox-label input { width: 18px; height: 18px; accent-color: var(--primary); }
+        .checkbox-label input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+        .checkbox-label input:disabled { cursor: not-allowed; opacity: 0.5; }
+
+        .checkbox-info {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-top: 0.25rem;
+        }
 
         #ai-result-box {
             background: #0a0a0c;
@@ -136,12 +166,10 @@
             border: 1px solid var(--border);
             font-size: 0.92rem;
             line-height: 1.6;
-            max-height: 380px;
+            max-height: 400px;
             overflow-y: auto;
         }
         #ai-result-box p { color: var(--text-main); margin-bottom: 0.8rem; }
-        #ai-result-box ul, #ai-result-box ol { padding-left: 1.2rem; margin: 0.5rem 0; }
-        #ai-result-box code { font-family: 'JetBrains Mono', monospace; background: #1a1a1c; padding: 2px 6px; border-radius: 4px; }
 
         .pulse-loader {
             display: inline-block;
@@ -161,7 +189,9 @@
     <!-- SCREEN 1: HOOK -->
     <div id="screen-start" class="screen active">
         <h1>INSYD AI Matchmaker</h1>
-        <p style="text-align:center;">Discover your custom career roadmap in 60 seconds.</p>
+        <p style="text-align:center;">Discover your custom pathway in 90 seconds. Help us advocate for better options.</p>
+        <p style="text-align:center; font-size: 0.85rem; color: var(--text-sub); margin-top: -0.5rem;">Your honest feedback shapes NSW education policy.</p>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width: 10%;"></div></div>
         <h2 style="margin-top: 0.5rem;">What year are you in?</h2>
         <div class="btn-group">
             <button onclick="nav('screen-start', 'screen-junior', 'yearGroup', '7')">Year 7 <span>→</span></button>
@@ -175,29 +205,44 @@
 
     <!-- SCREEN 2A: JUNIORS -->
     <div id="screen-junior" class="screen">
+        <div class="progress-bar"><div class="progress-bar-fill" style="width: 25%;"></div></div>
         <h2>How do you learn best?</h2>
-        <p>Did you know an SBAT (Apprenticeship/Traineeship) lets you get paid, gain real trade skills, and complete your HSC at the same time?</p>
+        <p>This helps us match you with the right pathway.</p>
         <div class="btn-group">
-            <button onclick="nav('screen-junior', 'screen-industry', 'learningStyle', 'Classroom')">Sitting in a classroom <span>→</span></button>
-            <button onclick="nav('screen-junior', 'screen-industry', 'learningStyle', 'Hands-on')">Hands-on building & doing <span>→</span></button>
-            <button onclick="nav('screen-junior', 'screen-industry', 'learningStyle', 'Mixed')">A mix of both <span>→</span></button>
+            <button onclick="nav('screen-junior', 'screen-industry', 'learningStyle', 'Classroom')">📚 Sitting in a classroom <span>→</span></button>
+            <button onclick="nav('screen-junior', 'screen-industry', 'learningStyle', 'Hands-on')">🛠️ Hands-on building & doing <span>→</span></button>
+            <button onclick="nav('screen-junior', 'screen-industry', 'learningStyle', 'Mixed')">⚡ A mix of both <span>→</span></button>
         </div>
     </div>
 
     <!-- SCREEN 2B: SENIORS -->
     <div id="screen-senior" class="screen">
-        <h2>What's your main goal after school?</h2>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width: 25%;"></div></div>
+        <h2>What's your post-school goal?</h2>
+        <p>This shapes everything we recommend.</p>
         <div class="btn-group">
-            <button onclick="nav('screen-senior', 'screen-industry', 'goal', 'ATAR/Uni')">High ATAR for University <span>→</span></button>
-            <button onclick="nav('screen-senior', 'screen-industry', 'goal', 'Trade/Apprenticeship')">Getting a Trade / SBAT <span>→</span></button>
-            <button onclick="nav('screen-senior', 'screen-industry', 'goal', 'Workforce')">Going straight to work <span>→</span></button>
+            <button onclick="nav('screen-senior', 'screen-industry', 'goal', 'ATAR/Uni')">🎓 High ATAR for university <span>→</span></button>
+            <button onclick="nav('screen-senior', 'screen-industry', 'goal', 'Trade/Apprenticeship')">🏗️ Trade / SBAT pathway <span>→</span></button>
+            <button onclick="nav('screen-senior', 'screen-industry', 'goal', 'Workforce')">💼 Straight to work <span>→</span></button>
         </div>
     </div>
 
     <!-- SCREEN 3: INDUSTRY -->
     <div id="screen-industry" class="screen">
-        <h2>Which industries interest you?</h2>
-        <p>Select up to 3 options:</p>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width: 40%;"></div></div>
+        <h2>Pick up to 3 industries</h2>
+        <p>What gets you excited?</p>
+        <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" value="Information Technology" onchange="limitCheckboxes(3)"> 💻 Information Technology & Cyber</label>
+            <label class="checkbox-label"><input type="checkbox" value="Business"> 📊 Business & Finance</label>
+            <label class="checkbox-label"><input type="checkbox" value="Construction/Engineering"> 🏗️ Construction & Engineering</label>
+            <label class="checkbox-label"><input type="checkbox" value="Healthcare"> 🏥 Healthcare & Nursing</label>
+            <label class="checkbox-label"><input type="checkbox" value="Creative Arts"> 🎨 Creative Arts & Design</label>
+            <label class="checkbox-label"><input type="checkbox" value="Trades"> 🔧 Trades & Utilities</label>
+        </div>
+        <div class="checkbox-info" id="checkbox-counter">Select up to 3</div>
+        <button class="btn-primary" id="industry-btn" onclick="saveCheckboxes('screen-industry', 'screen-policy', 'industries')" disabled>Next Step →</button>
+    </div>
         <div class="checkbox-group">
             <label class="checkbox-label"><input type="checkbox" value="Information Technology"> Information Technology & Cyber</label>
             <label class="checkbox-label"><input type="checkbox" value="Business"> Business & Finance</label>
@@ -205,50 +250,51 @@
             <label class="checkbox-label"><input type="checkbox" value="Healthcare"> Healthcare & Nursing</label>
             <label class="checkbox-label"><input type="checkbox" value="Creative Arts"> Creative Arts & Design</label>
         </div>
-        <button class="btn-primary" onclick="saveCheckboxes('screen-industry', 'screen-policy', 'industries')">Next Step →</button>
-    </div>
 
-    <!-- SCREEN 4: THE TROJAN HORSE -->
+    <!-- SCREEN 4: POLICY (The Ask) -->
     <div id="screen-policy" class="screen">
+        <div class="progress-bar"><div class="progress-bar-fill" style="width: 60%;"></div></div>
         <h2>Have your say 📢</h2>
-        <p>Should the NSW Government allow students to take advanced <b>Certificate IV</b> qualifications as SBATs or eVET courses?</p>
+        <p>Should NSW allow students to do advanced <b>Certificate IV</b> qualifications as affordable SBATs?</p>
         <div class="btn-group">
-            <button onclick="nav('screen-policy', 'screen-it-specific', 'policySupport', 'Yes')">Yes, we need higher-level options <span>→</span></button>
-            <button onclick="nav('screen-policy', 'screen-it-specific', 'policySupport', 'Unsure')">Unsure / Need more info <span>→</span></button>
-            <button onclick="nav('screen-policy', 'screen-it-specific', 'policySupport', 'No')">No, basic Cert II/III is fine <span>→</span></button>
+            <button onclick="nav('screen-policy', 'screen-it-specific', 'policySupport', 'Yes')">✅ Yes, we need more options <span>→</span></button>
+            <button onclick="nav('screen-policy', 'screen-it-specific', 'policySupport', 'Unsure')">❓ Unsure / Need more info <span>→</span></button>
+            <button onclick="nav('screen-policy', 'screen-it-specific', 'policySupport', 'No')">❌ No, current system is fine <span>→</span></button>
         </div>
     </div>
 
-    <!-- SCREEN 5: SPECIFIC TARGET -->
+    <!-- SCREEN 5: CERT IV DEMAND -->
     <div id="screen-it-specific" class="screen">
-        <h2>Specific course demand</h2>
-        <p>If the <b>ICT40120 (Cert IV in IT)</b> was available as an official SBAT at INSYD, would you consider taking it?</p>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width: 75%;"></div></div>
+        <h2>Specific opportunity</h2>
+        <p>Would you do <b>ICT40120 (Cert IV in IT)</b> as an affordable SBAT at INSYD?</p>
         <div class="btn-group">
-            <button onclick="nav('screen-it-specific', 'screen-dream-job', 'wouldTakeICT', 'Yes')">Yes, 100% <span>→</span></button>
-            <button onclick="nav('screen-it-specific', 'screen-dream-job', 'wouldTakeICT', 'Maybe')">Maybe <span>→</span></button>
-            <button onclick="nav('screen-it-specific', 'screen-dream-job', 'wouldTakeICT', 'No')">No, not interested <span>→</span></button>
+            <button onclick="nav('screen-it-specific', 'screen-dream-job', 'wouldTakeICT', 'Yes')">✅ Definitely <span>→</span></button>
+            <button onclick="nav('screen-it-specific', 'screen-dream-job', 'wouldTakeICT', 'Maybe')">🤔 Maybe <span>→</span></button>
+            <button onclick="nav('screen-it-specific', 'screen-dream-job', 'wouldTakeICT', 'No')">❌ Not for me <span>→</span></button>
         </div>
     </div>
 
     <!-- SCREEN 6: DREAM JOB -->
     <div id="screen-dream-job" class="screen">
-        <h2>Final step 🚀</h2>
-        <p>If you could design your dream job right now, what would you be doing every day?</p>
-        <input type="text" id="dreamJobInput" placeholder="E.g., Coding apps, managing projects..." autocomplete="off">
-        <button class="btn-primary" onclick="submitToAI()">Generate My Roadmap ✨</button>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width: 90%;"></div></div>
+        <h2>What excites you? 🚀</h2>
+        <p>Describe your ideal day at work (or what you'd want to learn).</p>
+        <input type="text" id="dreamJobInput" placeholder="E.g., Building apps, working with 3D design, helping people..." autocomplete="off" maxlength="200">
+        <button class="btn-primary" onclick="submitToAI()">Generate Your Pathway ✨</button>
     </div>
 
-    <!-- SCREEN 7: AI RESPONSE & RESULT -->
+    <!-- SCREEN 7: AI RESULT -->
     <div id="screen-result" class="screen">
         <div style="display:flex; align-items:center; gap:10px;">
             <div id="status-pulse" class="pulse-loader"></div>
-            <h2 id="loading-text">VincentAI is analyzing...</h2>
+            <h2 id="loading-text">Analyzing your profile...</h2>
         </div>
-        <p id="loading-subtext">Building your personalized career roadmap.</p>
+        <p id="loading-subtext">Building your personalized pathway.</p>
         
         <div id="ai-result-box" style="display:none;"></div>
         
-        <button id="stats-btn" class="btn-primary" style="display:none;" onclick="window.location.href='results.html'">See what INSYD wants 📊</button>
+        <button id="stats-btn" class="btn-primary" style="display:none; margin-top: 1rem;" onclick="window.location.href='results.html'">See aggregate results 📊</button>
     </div>
 
 </div>
@@ -269,10 +315,30 @@
         switchScreen(currentScreen, nextScreen);
     }
 
+    function limitCheckboxes(max) {
+        const checkboxes = document.querySelectorAll('#screen-industry input[type="checkbox"]:checked');
+        if (checkboxes.length > max) {
+            event.target.checked = false;
+        }
+        updateCheckboxCounter();
+    }
+
+    function updateCheckboxCounter() {
+        const checked = document.querySelectorAll('#screen-industry input[type="checkbox"]:checked').length;
+        const counter = document.getElementById('checkbox-counter');
+        const btn = document.getElementById('industry-btn');
+        counter.textContent = `Selected: ${checked}/3`;
+        btn.disabled = checked === 0;
+    }
+
     function saveCheckboxes(currentScreen, nextScreen, dataKey) {
         const checkedBoxes = document.querySelectorAll(`#${currentScreen} input[type="checkbox"]:checked`);
         let selected = [];
         checkedBoxes.forEach(box => selected.push(box.value));
+        if (selected.length === 0) {
+            alert("Please select at least one industry");
+            return;
+        }
         studentData[dataKey] = selected;
         switchScreen(currentScreen, nextScreen);
     }
@@ -297,25 +363,26 @@
     async function submitToAI() {
         studentData.dreamJob = document.getElementById('dreamJobInput').value.trim();
         if(!studentData.dreamJob) {
-            alert("Please tell us your dream job!");
+            alert("Tell us what excites you!");
             return;
         }
 
         switchScreen('screen-dream-job', 'screen-result');
 
-        // Embedded System Prompt
-        const systemPrompt = `You are a helpful, realistic high school careers advisor in NSW, Australia. 
-A student at INSYD High School submitted their details:
-- Year Group: Year ${studentData.yearGroup}
-- Preferred Learning Style: ${studentData.learningStyle || 'N/A'}
-- Post-School Goal: ${studentData.goal || 'N/A'}
-- Target Industries: ${studentData.industries.join(', ') || 'General'}
-- Dream Job: "${studentData.dreamJob}"
+        // Natural, strict system prompt - no AI-speak
+        const systemPrompt = `You are a real NSW high school guidance counselor giving genuine advice.
 
-Write a concise, encouraging 3-paragraph career roadmap:
-1. Explain how their dream job aligns with high school subject selection and VET/SBAT options.
-2. Recommend specific NSW HSC subjects or traineeships to target.
-3. Provide one clear next step (e.g., speaking to the Careers Advisor or investigating SBAT pathways). Format using clean Markdown.`;
+Student profile:
+- Year ${studentData.yearGroup}
+- Interested in: ${studentData.industries.join(', ')}
+- What excites them: "${studentData.dreamJob}"
+
+Write exactly 3 short paragraphs (no bullet points, no lists):
+1. Connect their interests to realistic NSW pathways (HSC subjects, trade options, or SBAT courses that actually exist)
+2. Name 2-3 specific subjects or qualifications to pursue this year
+3. One concrete next action (talk to careers advisor, research a course, explore an apprenticeship)
+
+Sound like a person who works in a school. Be direct, encouraging, practical. No flowery language. Keep it under 350 words total.`;
 
         const payload = {
             message: systemPrompt,
@@ -332,7 +399,7 @@ Write a concise, encouraging 3-paragraph career roadmap:
 
             if (!response.ok) throw new Error("API Connection Failed");
 
-            document.getElementById('loading-text').innerText = "Your Roadmap is Ready!";
+            document.getElementById('loading-text').innerText = "Your pathway is ready";
             document.getElementById('loading-subtext').style.display = "none";
             document.getElementById('status-pulse').style.display = "none";
 
@@ -340,7 +407,6 @@ Write a concise, encouraging 3-paragraph career roadmap:
             resultBox.style.display = "block";
             document.getElementById('stats-btn').style.display = "flex";
 
-            // Live Stream Decoding
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let aiText = "";
@@ -354,8 +420,8 @@ Write a concise, encouraging 3-paragraph career roadmap:
             }
 
         } catch (err) {
-            document.getElementById('loading-text').innerText = "Unable to connect to AI.";
-            document.getElementById('loading-subtext').innerText = "Please check your network connection.";
+            document.getElementById('loading-text').innerText = "Connection issue";
+            document.getElementById('loading-subtext').innerText = "Check your internet and try again.";
             document.getElementById('status-pulse').style.background = "#ff8b8b";
             console.error("Fetch Error:", err);
         }

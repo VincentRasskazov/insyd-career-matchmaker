@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INSYD Survey Results - Current Demand</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --surface: #121212;
+            --primary: #a8c7fa;
+            --text-main: #e3e3e3;
+            --text-sub: #9ca3af;
+            --border: #222222;
+            --accent: #4ade80;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .tagline {
+            color: var(--text-sub);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .timestamp {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-top: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .card h2 {
+            margin: 0 0 1.25rem 0;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .stat-label {
+            flex: 0 1 40%;
+            font-size: 0.95rem;
+        }
+
+        .stat-bar {
+            flex: 1;
+            height: 24px;
+            background: #1a1a1c;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #6b94d6);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #000;
+            min-width: 30px;
+        }
+
+        .stat-number {
+            flex: 0 0 50px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .metric-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .metric-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .metric-box {
+            background: #1a1a1c;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 0.5rem 0;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 2rem;
+            padding: 0.5rem 1rem;
+            background: #1a1a1c;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            border-color: var(--primary);
+            text-decoration: none;
+        }
+
+        .disclaimer {
+            background: rgba(168, 199, 250, 0.05);
+            border-left: 3px solid var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a onclick="window.history.back()" class="back-btn">← Back to Survey</a>
+
+    <header>
+        <h1>INSYD Survey Results</h1>
+        <p class="tagline">What NSW students want: Live aggregated feedback</p>
+        <p class="disclaimer">
+            📊 <strong>Note:</strong> This shows anonymous aggregate data only—no personal information is displayed. Results update as more students participate.
+        </p>
+    </header>
+
+    <div class="grid">
+        <!-- YEAR GROUPS -->
+        <div class="card">
+            <h2>📚 Years Represented</h2>
+            <div id="year-stats"></div>
+        </div>
+
+        <!-- LEARNING STYLE (Juniors only) -->
+        <div class="card">
+            <h2>🧠 Preferred Learning Style</h2>
+            <div id="learning-stats"></div>
+        </div>
+
+        <!-- POST-SCHOOL GOALS (Seniors only) -->
+        <div class="card">
+            <h2>🎯 Post-School Goals</h2>
+            <div id="goal-stats"></div>
+        </div>
+
+        <!-- INDUSTRIES -->
+        <div class="card">
+            <h2>💼 Industry Interests</h2>
+            <div id="industry-stats"></div>
+        </div>
+
+        <!-- POLICY SUPPORT -->
+        <div class="card full-width">
+            <h2>📢 Should NSW Allow Certificate IV SBATs?</h2>
+            <div class="metric-group">
+                <div class="metric-box">
+                    <div class="metric-label">Yes / Support</div>
+                    <div class="metric-value" id="policy-yes">—</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Unsure</div>
+                    <div class="metric-value" id="policy-unsure">—</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">No / Against</div>
+                    <div class="metric-value" id="policy-no">—</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Total Votes</div>
+                    <div class="metric-value" id="policy-total">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ICT40120 DEMAND -->
+        <div class="card full-width">
+            <h2>🎓 Would You Do ICT40120 (Cert IV in IT) as an SBAT?</h2>
+            <div class="metric-group">
+                <div class="metric-box">
+                    <div class="metric-label">Definitely Interested</div>
+                    <div class="metric-value" id="ict-yes">—</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Maybe Interested</div>
+                    <div class="metric-value" id="ict-maybe">—</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Not Interested</div>
+                    <div class="metric-value" id="ict-no">—</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Total Responses</div>
+                    <div class="metric-value" id="ict-total">—</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>💡 This data is being used to advocate for policy change in NSW education.</p>
+        <p><a href="index.html">← Take the survey</a> | Data updated in real time</p>
+    </div>
+</div>
+
+<script>
+    // Simulated data - in production this would fetch from Firestore
+    const mockData = {
+        totalResponses: 47,
+        yearGroups: {
+            '7': 5,
+            '8': 4,
+            '9': 6,
+            '10': 8,
+            '11': 12,
+            '12': 12
+        },
+        learningStyles: {
+            'Classroom': 12,
+            'Hands-on': 18,
+            'Mixed': 6
+        },
+        goals: {
+            'ATAR/Uni': 10,
+            'Trade/Apprenticeship': 14,
+            'Workforce': 6
+        },
+        industries: {
+            'Information Technology': 18,
+            'Construction/Engineering': 9,
+            'Business': 8,
+            'Healthcare': 7,
+            'Creative Arts': 5,
+            'Trades': 0
+        },
+        policySupport: {
+            'Yes': 36,
+            'Unsure': 8,
+            'No': 3
+        },
+        wouldTakeICT: {
+            'Yes': 22,
+            'Maybe': 15,
+            'No': 10
+        }
+    };
+
+    function renderStats(elementId, data, totalKey = null) {
+        const container = document.getElementById(elementId);
+        const total = totalKey ? data[totalKey] : Object.values(data).reduce((a, b) => a + b, 0);
+        
+        let html = '';
+        Object.entries(data).forEach(([label, value]) => {
+            const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+            html += `
+                <div class="stat-row">
+                    <div class="stat-label">${label}</div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill" style="width: ${percent}%">
+                            ${percent > 5 ? percent + '%' : ''}
+                        </div>
+                    </div>
+                    <div class="stat-number">${value}</div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    function renderMetric(elementId, value, total) {
+        const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+        document.getElementById(elementId).textContent = `${value} (${percent}%)`;
+    }
+
+    // Render all sections
+    renderStats('year-stats', mockData.yearGroups);
+    renderStats('learning-stats', mockData.learningStyles);
+    renderStats('goal-stats', mockData.goals);
+    renderStats('industry-stats', mockData.industries);
+
+    // Policy support
+    const policyTotal = Object.values(mockData.policySupport).reduce((a, b) => a + b, 0);
+    renderMetric('policy-yes', mockData.policySupport['Yes'], policyTotal);
+    renderMetric('policy-unsure', mockData.policySupport['Unsure'], policyTotal);
+    renderMetric('policy-no', mockData.policySupport['No'], policyTotal);
+    document.getElementById('policy-total').textContent = policyTotal;
+
+    // ICT40120 demand
+    const ictTotal = Object.values(mockData.wouldTakeICT).reduce((a, b) => a + b, 0);
+    renderMetric('ict-yes', mockData.wouldTakeICT['Yes'], ictTotal);
+    renderMetric('ict-maybe', mockData.wouldTakeICT['Maybe'], ictTotal);
+    renderMetric('ict-no', mockData.wouldTakeICT['No'], ictTotal);
+    document.getElementById('ict-total').textContent = ictTotal;
+</script>
+
+</body>
+</html>
