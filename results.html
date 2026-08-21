@@ -419,16 +419,26 @@
                 appId: "1:987654321098:web:a1b2c3d4e5f6g7h8"
             };
 
-            const app = firebase.initializeApp(firebaseConfig);
-            const db = firebase.firestore(app);
+            let app, db;
+            try {
+                app = firebase.initializeApp(firebaseConfig);
+            } catch (e) {
+                // App already initialized
+                app = firebase.app();
+            }
+            db = firebase.firestore(app);
 
+            console.log('Fetching Firestore data...');
             const snapshot = await db.collection('survey-responses').get();
+            console.log('Snapshot received, docs count:', snapshot.size);
             
             if (snapshot.empty) {
-                console.log('No responses yet, using mock data');
+                console.log('No responses found in Firestore, showing mock data');
                 displayData(mockData);
                 return;
             }
+
+            console.log('Processing', snapshot.size, 'responses from Firestore');
 
             // Aggregate response data
             const aggregated = {
@@ -442,6 +452,7 @@
 
             snapshot.forEach(doc => {
                 const data = doc.data();
+                console.log('Processing doc:', data);
 
                 // Year groups
                 if (data.yearGroup) {
@@ -465,23 +476,17 @@
                     });
                 }
 
-                // Policy support
+                // Policy support (matches stored values exactly)
                 if (data.policySupport) {
-                    const normalizedSupport = data.policySupport === 'yes' ? 'Yes' : 
-                                            data.policySupport === 'maybe' ? 'Unsure' : 
-                                            data.policySupport === 'no' ? 'No' : null;
-                    if (normalizedSupport && aggregated.policySupport[normalizedSupport] !== undefined) {
-                        aggregated.policySupport[normalizedSupport]++;
+                    if (aggregated.policySupport[data.policySupport] !== undefined) {
+                        aggregated.policySupport[data.policySupport]++;
                     }
                 }
 
-                // ICT40120 interest
+                // ICT40120 interest (matches stored values exactly)
                 if (data.wouldTakeICT) {
-                    const normalizedICT = data.wouldTakeICT === 'yes' ? 'Yes' : 
-                                         data.wouldTakeICT === 'maybe' ? 'Maybe' : 
-                                         data.wouldTakeICT === 'no' ? 'No' : null;
-                    if (normalizedICT && aggregated.wouldTakeICT[normalizedICT] !== undefined) {
-                        aggregated.wouldTakeICT[normalizedICT]++;
+                    if (aggregated.wouldTakeICT[data.wouldTakeICT] !== undefined) {
+                        aggregated.wouldTakeICT[data.wouldTakeICT]++;
                     }
                 }
             });
@@ -502,14 +507,23 @@
                 if (!aggregated.goals[goal]) aggregated.goals[goal] = 0;
             });
 
+            const allIndustries = ['Information Technology', 'Business', 'Construction/Engineering', 'Healthcare', 'Creative Arts'];
+            allIndustries.forEach(ind => {
+                if (!aggregated.industries[ind]) aggregated.industries[ind] = 0;
+            });
+
+            console.log('Aggregated data:', aggregated);
+            console.log('Real data loaded from Firestore');
             displayData(aggregated);
         } catch (error) {
-            console.log('Firestore load failed, using mock data:', error);
+            console.error('Firestore load error:', error);
+            console.log('Falling back to mock data');
             displayData(mockData);
         }
     }
 
     // Load data on page load
+    console.log('Page loaded, starting Firestore data load...');
     loadFirestoreData();
 </script>
 
