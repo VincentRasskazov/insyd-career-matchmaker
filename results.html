@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>INSYD Survey Results - Current Demand</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js"></script>
     <style>
         :root {
             --bg: #050505;
@@ -297,51 +300,29 @@
 </div>
 
 <script>
-    // Simulated data - in production this would fetch from Firestore
+    // Default mock data (fallback if Firestore unavailable)
     const mockData = {
         totalResponses: 47,
         yearGroups: {
-            '7': 5,
-            '8': 4,
-            '9': 6,
-            '10': 8,
-            '11': 12,
-            '12': 12
+            '7': 5, '8': 4, '9': 6, '10': 8, '11': 12, '12': 12
         },
         learningStyles: {
-            'Classroom': 12,
-            'Hands-on': 18,
-            'Mixed': 6
+            'Classroom': 12, 'Hands-on': 18, 'Mixed': 6
         },
         goals: {
-            'ATAR/Uni': 10,
-            'Trade/Apprenticeship': 14,
-            'Workforce': 6
+            'ATAR/Uni': 10, 'Trade/Apprenticeship': 14, 'Workforce': 6
         },
         industries: {
-            'Information Technology': 18,
-            'Construction/Engineering': 9,
-            'Business': 8,
-            'Healthcare': 7,
-            'Creative Arts': 5,
-            'Trades': 0
+            'Information Technology': 18, 'Construction/Engineering': 9,
+            'Business': 8, 'Healthcare': 7, 'Creative Arts': 5, 'Trades': 0
         },
-        policySupport: {
-            'Yes': 36,
-            'Unsure': 8,
-            'No': 3
-        },
-        wouldTakeICT: {
-            'Yes': 22,
-            'Maybe': 15,
-            'No': 10
-        }
+        policySupport: { 'Yes': 36, 'Unsure': 8, 'No': 3 },
+        wouldTakeICT: { 'Yes': 22, 'Maybe': 15, 'No': 10 }
     };
 
     function renderStats(elementId, data, totalKey = null) {
         const container = document.getElementById(elementId);
         const total = totalKey ? data[totalKey] : Object.values(data).reduce((a, b) => a + b, 0);
-        
         let html = '';
         Object.entries(data).forEach(([label, value]) => {
             const percent = total > 0 ? Math.round((value / total) * 100) : 0;
@@ -365,25 +346,128 @@
         document.getElementById(elementId).textContent = `${value} (${percent}%)`;
     }
 
-    // Render all sections
-    renderStats('year-stats', mockData.yearGroups);
-    renderStats('learning-stats', mockData.learningStyles);
-    renderStats('goal-stats', mockData.goals);
-    renderStats('industry-stats', mockData.industries);
+    function displayData(data) {
+        renderStats('year-stats', data.yearGroups);
+        renderStats('learning-stats', data.learningStyles);
+        renderStats('goal-stats', data.goals);
+        renderStats('industry-stats', data.industries);
 
-    // Policy support
-    const policyTotal = Object.values(mockData.policySupport).reduce((a, b) => a + b, 0);
-    renderMetric('policy-yes', mockData.policySupport['Yes'], policyTotal);
-    renderMetric('policy-unsure', mockData.policySupport['Unsure'], policyTotal);
-    renderMetric('policy-no', mockData.policySupport['No'], policyTotal);
-    document.getElementById('policy-total').textContent = policyTotal;
+        const policyTotal = Object.values(data.policySupport).reduce((a, b) => a + b, 0);
+        renderMetric('policy-yes', data.policySupport['Yes'], policyTotal);
+        renderMetric('policy-unsure', data.policySupport['Unsure'], policyTotal);
+        renderMetric('policy-no', data.policySupport['No'], policyTotal);
+        document.getElementById('policy-total').textContent = policyTotal;
 
-    // ICT40120 demand
-    const ictTotal = Object.values(mockData.wouldTakeICT).reduce((a, b) => a + b, 0);
-    renderMetric('ict-yes', mockData.wouldTakeICT['Yes'], ictTotal);
-    renderMetric('ict-maybe', mockData.wouldTakeICT['Maybe'], ictTotal);
-    renderMetric('ict-no', mockData.wouldTakeICT['No'], ictTotal);
-    document.getElementById('ict-total').textContent = ictTotal;
+        const ictTotal = Object.values(data.wouldTakeICT).reduce((a, b) => a + b, 0);
+        renderMetric('ict-yes', data.wouldTakeICT['Yes'], ictTotal);
+        renderMetric('ict-maybe', data.wouldTakeICT['Maybe'], ictTotal);
+        renderMetric('ict-no', data.wouldTakeICT['No'], ictTotal);
+        document.getElementById('ict-total').textContent = ictTotal;
+    }
+
+    async function loadFirestoreData() {
+        try {
+            const firebaseConfig = {
+                apiKey: "AIzaSyBiN7T_qJdSCUVj_T20rVsW9mWZ2aqJjXI",
+                authDomain: "insyd-career-matchmaker.firebaseapp.com",
+                projectId: "insyd-career-matchmaker",
+                storageBucket: "insyd-career-matchmaker.appspot.com",
+                messagingSenderId: "897892833706",
+                appId: "1:897892833706:web:d40f2d9c8a926cb0ecfd0b"
+            };
+
+            const app = firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore(app);
+
+            const snapshot = await db.collection('survey-responses').get();
+            
+            if (snapshot.empty) {
+                console.log('No responses yet, using mock data');
+                displayData(mockData);
+                return;
+            }
+
+            // Aggregate response data
+            const aggregated = {
+                yearGroups: {},
+                learningStyles: {},
+                goals: {},
+                industries: {},
+                policySupport: { 'Yes': 0, 'Unsure': 0, 'No': 0 },
+                wouldTakeICT: { 'Yes': 0, 'Maybe': 0, 'No': 0 }
+            };
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+
+                // Year groups
+                if (data.yearGroup) {
+                    aggregated.yearGroups[data.yearGroup] = (aggregated.yearGroups[data.yearGroup] || 0) + 1;
+                }
+
+                // Learning styles (junior path)
+                if (data.learningStyle) {
+                    aggregated.learningStyles[data.learningStyle] = (aggregated.learningStyles[data.learningStyle] || 0) + 1;
+                }
+
+                // Goals (senior path)
+                if (data.goal) {
+                    aggregated.goals[data.goal] = (aggregated.goals[data.goal] || 0) + 1;
+                }
+
+                // Industries
+                if (data.industries && Array.isArray(data.industries)) {
+                    data.industries.forEach(industry => {
+                        aggregated.industries[industry] = (aggregated.industries[industry] || 0) + 1;
+                    });
+                }
+
+                // Policy support
+                if (data.policySupport) {
+                    const normalizedSupport = data.policySupport === 'yes' ? 'Yes' : 
+                                            data.policySupport === 'maybe' ? 'Unsure' : 
+                                            data.policySupport === 'no' ? 'No' : null;
+                    if (normalizedSupport && aggregated.policySupport[normalizedSupport] !== undefined) {
+                        aggregated.policySupport[normalizedSupport]++;
+                    }
+                }
+
+                // ICT40120 interest
+                if (data.wouldTakeICT) {
+                    const normalizedICT = data.wouldTakeICT === 'yes' ? 'Yes' : 
+                                         data.wouldTakeICT === 'maybe' ? 'Maybe' : 
+                                         data.wouldTakeICT === 'no' ? 'No' : null;
+                    if (normalizedICT && aggregated.wouldTakeICT[normalizedICT] !== undefined) {
+                        aggregated.wouldTakeICT[normalizedICT]++;
+                    }
+                }
+            });
+
+            // Fill gaps with zeros for consistency
+            const allYears = ['7', '8', '9', '10', '11', '12'];
+            allYears.forEach(year => {
+                if (!aggregated.yearGroups[year]) aggregated.yearGroups[year] = 0;
+            });
+
+            const allLearning = ['Classroom', 'Hands-on', 'Mixed'];
+            allLearning.forEach(style => {
+                if (!aggregated.learningStyles[style]) aggregated.learningStyles[style] = 0;
+            });
+
+            const allGoals = ['ATAR/Uni', 'Trade/Apprenticeship', 'Workforce'];
+            allGoals.forEach(goal => {
+                if (!aggregated.goals[goal]) aggregated.goals[goal] = 0;
+            });
+
+            displayData(aggregated);
+        } catch (error) {
+            console.log('Firestore load failed, using mock data:', error);
+            displayData(mockData);
+        }
+    }
+
+    // Load data on page load
+    loadFirestoreData();
 </script>
 
 </body>
